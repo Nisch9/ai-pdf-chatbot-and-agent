@@ -119,7 +119,7 @@ app.post('/threads/:threadId/runs/stream', async (req: Request, res: Response) =
     } else if (assistant_id === 'retrieval_graph') {
       graph = retrievalGraph;
     } else {
-      res.write(`data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`);
+      res.write(`event: error\ndata: ${JSON.stringify({ error: `Unknown assistant: ${assistant_id}` })}\n\n`);
       res.end();
       return;
     }
@@ -128,18 +128,15 @@ app.post('/threads/:threadId/runs/stream', async (req: Request, res: Response) =
     const streamModes = Array.isArray(stream_mode) ? stream_mode : [stream_mode || 'updates'];
     
     for await (const chunk of await graph.stream(input, { ...graphConfig, streamMode: streamModes[0] })) {
-      const eventData = {
-        event: streamModes[0],
-        data: chunk,
-      };
-      res.write(`data: ${JSON.stringify(eventData)}\n\n`);
+      // LangGraph SDK expects: event: <name>\ndata: <json>\n\n
+      res.write(`event: ${streamModes[0]}\ndata: ${JSON.stringify(chunk)}\n\n`);
     }
 
-    res.write(`data: ${JSON.stringify({ event: 'end' })}\n\n`);
+    res.write(`event: end\ndata: {}\n\n`);
     res.end();
   } catch (error) {
     console.error('Error streaming graph:', error);
-    res.write(`data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`);
+    res.write(`event: error\ndata: ${JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`);
     res.end();
   }
 });
@@ -169,7 +166,7 @@ app.post('/runs/stream', async (req: Request, res: Response) => {
     } else if (assistant_id === 'retrieval_graph') {
       graph = retrievalGraph;
     } else {
-      res.write(`data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`);
+      res.write(`event: error\ndata: ${JSON.stringify({ error: `Unknown assistant: ${assistant_id}` })}\n\n`);
       res.end();
       return;
     }
@@ -177,18 +174,14 @@ app.post('/runs/stream', async (req: Request, res: Response) => {
     const streamModes = Array.isArray(stream_mode) ? stream_mode : [stream_mode || 'updates'];
     
     for await (const chunk of await graph.stream(input, { ...graphConfig, streamMode: streamModes[0] })) {
-      const eventData = {
-        event: streamModes[0],
-        data: chunk,
-      };
-      res.write(`data: ${JSON.stringify(eventData)}\n\n`);
+      res.write(`event: ${streamModes[0]}\ndata: ${JSON.stringify(chunk)}\n\n`);
     }
 
-    res.write(`data: ${JSON.stringify({ event: 'end' })}\n\n`);
+    res.write(`event: end\ndata: {}\n\n`);
     res.end();
   } catch (error) {
     console.error('Error streaming graph:', error);
-    res.write(`data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`);
+    res.write(`event: error\ndata: ${JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`);
     res.end();
   }
 });
