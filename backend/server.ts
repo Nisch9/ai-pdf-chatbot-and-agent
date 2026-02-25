@@ -119,24 +119,40 @@ app.post('/threads/:threadId/runs/stream', async (req: Request, res: Response) =
     } else if (assistant_id === 'retrieval_graph') {
       graph = retrievalGraph;
     } else {
-      res.write(`event: error\ndata: ${JSON.stringify({ error: `Unknown assistant: ${assistant_id}` })}\n\n`);
+      res.write(`data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`);
       res.end();
       return;
     }
 
-    // Stream the graph execution
+    // Stream the graph execution - frontend expects: data: {"event": "...", "data": ...}
     const streamModes = Array.isArray(stream_mode) ? stream_mode : [stream_mode || 'updates'];
     
-    for await (const chunk of await graph.stream(input, { ...graphConfig, streamMode: streamModes[0] })) {
-      // LangGraph SDK expects: event: <name>\ndata: <json>\n\n
-      res.write(`event: ${streamModes[0]}\ndata: ${JSON.stringify(chunk)}\n\n`);
+    // Accumulate message content for partial streaming
+    let accumulatedContent = '';
+    
+    // Use streamEvents to get AI message content
+    for await (const event of await graph.streamEvents(input, { ...graphConfig, version: 'v2' })) {
+      if (event.event === 'on_chat_model_stream' && event.data?.chunk?.content) {
+        // Accumulate and send partial message content
+        accumulatedContent += event.data.chunk.content;
+        res.write(`data: ${JSON.stringify({ 
+          event: 'messages/partial', 
+          data: [{ type: 'ai', content: accumulatedContent }] 
+        })}\n\n`);
+      } else if (event.event === 'on_chain_end' && event.name === 'retrieveDocuments') {
+        // Send document retrieval updates
+        res.write(`data: ${JSON.stringify({ 
+          event: 'updates', 
+          data: { retrieveDocuments: event.data?.output } 
+        })}\n\n`);
+      }
     }
 
-    res.write(`event: end\ndata: {}\n\n`);
+    res.write(`data: ${JSON.stringify({ event: 'end', data: {} })}\n\n`);
     res.end();
   } catch (error) {
     console.error('Error streaming graph:', error);
-    res.write(`event: error\ndata: ${JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`);
+    res.write(`data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`);
     res.end();
   }
 });
@@ -166,22 +182,37 @@ app.post('/runs/stream', async (req: Request, res: Response) => {
     } else if (assistant_id === 'retrieval_graph') {
       graph = retrievalGraph;
     } else {
-      res.write(`event: error\ndata: ${JSON.stringify({ error: `Unknown assistant: ${assistant_id}` })}\n\n`);
+      res.write(`data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`);
       res.end();
       return;
     }
 
     const streamModes = Array.isArray(stream_mode) ? stream_mode : [stream_mode || 'updates'];
     
-    for await (const chunk of await graph.stream(input, { ...graphConfig, streamMode: streamModes[0] })) {
-      res.write(`event: ${streamModes[0]}\ndata: ${JSON.stringify(chunk)}\n\n`);
+    // Accumulate message content for partial streaming
+    let accumulatedContent = '';
+    
+    // Use streamEvents to get AI message content
+    for await (const event of await graph.streamEvents(input, { ...graphConfig, version: 'v2' })) {
+      if (event.event === 'on_chat_model_stream' && event.data?.chunk?.content) {
+        accumulatedContent += event.data.chunk.content;
+        res.write(`data: ${JSON.stringify({ 
+          event: 'messages/partial', 
+          data: [{ type: 'ai', content: accumulatedContent }] 
+        })}\n\n`);
+      } else if (event.event === 'on_chain_end' && event.name === 'retrieveDocuments') {
+        res.write(`data: ${JSON.stringify({ 
+          event: 'updates', 
+          data: { retrieveDocuments: event.data?.output } 
+        })}\n\n`);
+      }
     }
 
-    res.write(`event: end\ndata: {}\n\n`);
+    res.write(`data: ${JSON.stringify({ event: 'end', data: {} })}\n\n`);
     res.end();
   } catch (error) {
     console.error('Error streaming graph:', error);
-    res.write(`event: error\ndata: ${JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`);
+    res.write(`data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`);
     res.end();
   }
 });
