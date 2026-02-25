@@ -49,7 +49,7 @@ async function answerQueryDirectly(
   const configuration = ensureAgentConfiguration(config);
   const model = await loadChatModel(configuration.queryModel);
   const userHumanMessage = new HumanMessage(state.query);
-  
+
   // Groq requires messages to have a type property
   // Manually set it to ensure compatibility
   (userHumanMessage as any).type = 'human';
@@ -107,7 +107,7 @@ async function generateResponse(
   const systemMessage = new SystemMessage(systemContent);
   // Groq requires messages to have a type property
   (systemMessage as any).type = 'system';
-  
+
   // Create current query message
   const humanMessage = new HumanMessage(state.query);
   // Groq requires messages to have a type property
@@ -116,29 +116,36 @@ async function generateResponse(
   // Build message history for this response generation
   // Only include previously valid messages that are proper LangChain message instances
   // Filter out any plain objects or malformed messages and manually set type property
-  const validPreviousMessages = (state.messages || []).filter(
-    msg => msg && typeof msg === 'object'
-  ).map(msg => {
-    const anyMsg = msg as any;
-    // Ensure type property is set for Groq compatibility
-    if (!anyMsg.type) {
-      // Try to guess the message type from the message structure
-      if (anyMsg.lc_name === 'HumanMessage' || (anyMsg.content && !anyMsg.content.startsWith('system:'))) {
-        anyMsg.type = 'human';
-      } else if (anyMsg.lc_name === 'AIMessage') {
-        anyMsg.type = 'ai';
-      } else if (anyMsg.lc_name === 'SystemMessage') {
-        anyMsg.type = 'system';
-      } else {
-        // Default to human if we can't determine the type
-        anyMsg.type = 'human';
+  const validPreviousMessages = (state.messages || [])
+    .filter((msg) => msg && typeof msg === 'object')
+    .map((msg) => {
+      const anyMsg = msg as any;
+      // Ensure type property is set for Groq compatibility
+      if (!anyMsg.type) {
+        // Try to guess the message type from the message structure
+        if (
+          anyMsg.lc_name === 'HumanMessage' ||
+          (anyMsg.content && !anyMsg.content.startsWith('system:'))
+        ) {
+          anyMsg.type = 'human';
+        } else if (anyMsg.lc_name === 'AIMessage') {
+          anyMsg.type = 'ai';
+        } else if (anyMsg.lc_name === 'SystemMessage') {
+          anyMsg.type = 'system';
+        } else {
+          // Default to human if we can't determine the type
+          anyMsg.type = 'human';
+        }
       }
-    }
-    return msg;
-  });
+      return msg;
+    });
 
   // Build message array: previous valid messages + system + human message
-  const messageHistory = [...validPreviousMessages, systemMessage, humanMessage];
+  const messageHistory = [
+    ...validPreviousMessages,
+    systemMessage,
+    humanMessage,
+  ];
 
   // Invoke model with properly typed messages
   const response = await model.invoke(messageHistory);

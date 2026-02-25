@@ -40,7 +40,7 @@ async function ingestDocs(
 
   // Add threadId to document metadata for thread isolation
   if (threadId) {
-    docs = docs.map(doc => ({
+    docs = docs.map((doc) => ({
       ...doc,
       metadata: {
         ...doc.metadata,

@@ -1,6 +1,5 @@
 import {
   Client,
-  DefaultValues,
   Thread,
   ThreadState,
 } from '@langchain/langgraph-sdk';
@@ -15,7 +14,7 @@ export class LangGraphBase {
   /**
    * Creates a new thread with optional metadata
    */
-  async createThread(metadata?: Record<string, any>) {
+  async createThread(metadata?: Record<string, unknown>) {
     return this.client.threads.create({ metadata });
   }
 
@@ -30,7 +29,7 @@ export class LangGraphBase {
    * Searches for threads with optional metadata filters
    */
   async searchThreads(params: {
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     limit?: number;
     offset?: number;
   }): Promise<Thread[]> {
@@ -44,7 +43,7 @@ export class LangGraphBase {
   /**
    * Gets the current state of a thread
    */
-  async getThreadState<T extends Record<string, any> = Record<string, any>>(
+  async getThreadState<T extends Record<string, unknown> = Record<string, unknown>>(
     threadId: string,
   ): Promise<ThreadState<T>> {
     return this.client.threads.getState(threadId);
@@ -55,7 +54,7 @@ export class LangGraphBase {
    */
   async updateThreadState(
     threadId: string,
-    values: Record<string, any>,
+    values: Record<string, unknown>,
     asNode?: string,
   ) {
     return this.client.threads.updateState(threadId, {
@@ -74,7 +73,7 @@ export class LangGraphBase {
   /**
    * Gets the history of a thread's states
    */
-  async getThreadHistory(threadId: string, limit: number = 10) {
+  async getThreadHistory(threadId: string, limit = 10) {
     return this.client.threads.getHistory(threadId, { limit });
   }
 
@@ -88,7 +87,7 @@ export class LangGraphBase {
   /**
    * Utility function to get interrupts from a thread
    */
-  getThreadInterrupts(thread: Thread): any[] | undefined {
+  getThreadInterrupts(thread: Thread): unknown[] | undefined {
     if (!thread.interrupts) return undefined;
 
     return Object.values(thread.interrupts).flatMap((interrupt) => {
@@ -105,7 +104,7 @@ export class LangGraphBase {
   async resumeThread(
     threadId: string,
     assistantId: string,
-    resumeValue: any,
+    resumeValue: unknown,
     config?: {
       configurable?: { [key: string]: unknown };
     },

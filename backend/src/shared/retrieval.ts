@@ -44,11 +44,11 @@ class DeterministicEmbeddings extends Embeddings {
 
     // Normalize vector to unit length
     const norm = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
-    return norm > 0 ? vector.map(v => v / norm) : vector;
+    return norm > 0 ? vector.map((v) => v / norm) : vector;
   }
 
   async embedDocuments(documents: string[]): Promise<number[][]> {
-    return documents.map(doc => this.generateVector(doc));
+    return documents.map((doc) => this.generateVector(doc));
   }
 
   async embedQuery(text: string): Promise<number[]> {
@@ -66,13 +66,17 @@ export async function makeSupabaseRetriever(
     );
   }
 
-  console.log('Initializing deterministic embeddings (384-dim, no API key needed)...');
+  console.log(
+    'Initializing deterministic embeddings (384-dim, no API key needed)...',
+  );
   const embeddings = new DeterministicEmbeddings();
 
   // Test embeddings
   try {
     const testEmbedding = await embeddings.embedDocuments(['test']);
-    console.log(`✓ Embeddings initialized. Vector dimension: ${testEmbedding[0].length}`);
+    console.log(
+      `✓ Embeddings initialized. Vector dimension: ${testEmbedding[0].length}`,
+    );
   } catch (error) {
     throw new Error(
       `Failed to initialize embeddings: ${error instanceof Error ? error.message : String(error)}`,
@@ -91,7 +95,7 @@ export async function makeSupabaseRetriever(
   });
 
   // Build filter with threadId if provided
-  const filter = threadId 
+  const filter = threadId
     ? { threadId } // Filter by threadId
     : configuration.filterKwargs;
 

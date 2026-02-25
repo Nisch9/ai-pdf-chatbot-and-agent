@@ -40,11 +40,11 @@ class DeterministicEmbeddings extends Embeddings {
     }
 
     const norm = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
-    return norm > 0 ? vector.map(v => v / norm) : vector;
+    return norm > 0 ? vector.map((v) => v / norm) : vector;
   }
 
   async embedDocuments(documents: string[]): Promise<number[][]> {
-    return documents.map(doc => this.generateVector(doc));
+    return documents.map((doc) => this.generateVector(doc));
   }
 
   async embedQuery(text: string): Promise<number[]> {
@@ -172,10 +172,11 @@ describe('Retrieval Graph Integration', () => {
   // Skip all tests if environment variables are missing
   const shouldRunTests = () => {
     const hasEnvVars =
-      process.env.SUPABASE_URL &&
-      process.env.SUPABASE_SERVICE_ROLE_KEY;
+      process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!hasEnvVars) {
-      console.warn('Skipping tests due to missing Supabase environment variables');
+      console.warn(
+        'Skipping tests due to missing Supabase environment variables',
+      );
     }
     return hasEnvVars;
   };
@@ -232,7 +233,7 @@ describe('Retrieval Graph Integration', () => {
       expect(result.messages).toHaveLength(2);
       expect(result.documents).toBeDefined();
       // May have 0 or more documents depending on retrieval relevance
-      
+
       const content = String(result.messages[1].content);
       // Check that the model provided some response
       expect(content).toBeTruthy();
