@@ -17,12 +17,9 @@ import { useChatHistory, ChatSession, FileMetadata, fileToMetadataWithPreview } 
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { client } from '@/lib/langgraph-client';
 import {
-  AgentState,
-  documentType,
   PDFDocument,
   RetrieveDocumentsNodeUpdates,
 } from '@/types/graphTypes';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -172,8 +169,8 @@ export default function Home() {
       if (!reader) throw new Error('No reader available');
 
       const decoder = new TextDecoder();
-      let hasError = false;
 
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -185,7 +182,7 @@ export default function Home() {
           if (!line.startsWith('data: ')) continue;
 
           const sseString = line.slice('data: '.length);
-          let sseEvent: any;
+          let sseEvent: { event: string; data: unknown };
           try {
             sseEvent = JSON.parse(sseString);
           } catch (err) {
@@ -197,8 +194,7 @@ export default function Home() {
 
           if (event === 'error') {
             console.error('Streaming error: ', data);
-            hasError = true;
-            throw new Error(data?.error || 'Unknown streaming error');
+            throw new Error((data as { error?: string })?.error || 'Unknown streaming error');
           }
 
           if (event === 'messages/partial') {

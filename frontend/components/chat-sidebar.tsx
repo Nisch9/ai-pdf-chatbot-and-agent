@@ -1,4 +1,4 @@
-import { ChevronDown, MoreVertical, Plus, Trash2, Edit2, X, Pin, PinOff, Download } from 'lucide-react';
+import { MoreVertical, Plus, Trash2, Edit2, X, Pin, PinOff, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { ChatSession } from '@/hooks/use-chat-history';

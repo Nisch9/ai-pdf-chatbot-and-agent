@@ -1,6 +1,6 @@
 'use client';
 
-import { Brain, FileText, MessageSquare, Zap, Shield, Sparkles, ArrowRight, Upload, Search, BookOpen, FolderOpen } from 'lucide-react';
+import { Brain, FileText, MessageSquare, Zap, Shield, Sparkles, ArrowRight, Upload, Search, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
