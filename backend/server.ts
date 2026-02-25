@@ -57,13 +57,12 @@ app.get('/threads/:threadId', (req: Request, res: Response) => {
   if (!thread) {
     return res.status(404).json({ error: 'Thread not found' });
   }
-  res.json(thread);
+  return res.json(thread);
 });
 
 // Get thread state
-app.get('/threads/:threadId/state', (req: Request, res: Response) => {
-  const { threadId } = req.params;
-  res.json({ values: {}, next: [], tasks: [], metadata: {}, created_at: new Date().toISOString(), parent_config: null });
+app.get('/threads/:threadId/state', (_req: Request, res: Response) => {
+  return res.json({ values: {}, next: [], tasks: [], metadata: {}, created_at: new Date().toISOString(), parent_config: null });
 });
 
 // Run graph (wait mode)
@@ -88,10 +87,10 @@ app.post('/threads/:threadId/runs/wait', async (req: Request, res: Response) => 
       return res.status(400).json({ error: `Unknown assistant: ${assistant_id}` });
     }
 
-    res.json(result);
+    return res.json(result);
   } catch (error) {
     console.error('Error running graph:', error);
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
