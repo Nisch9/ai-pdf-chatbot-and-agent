@@ -13,7 +13,10 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 // In-memory thread storage (use Redis/DB in production)
-const threads: Map<string, { thread_id: string; metadata: Record<string, unknown>; created_at: string }> = new Map();
+const threads: Map<
+  string,
+  { thread_id: string; metadata: Record<string, unknown>; created_at: string }
+> = new Map();
 
 // Health check
 app.get('/', (_req: Request, res: Response) => {
@@ -27,15 +30,27 @@ app.get('/ok', (_req: Request, res: Response) => {
 // List assistants
 app.post('/assistants/search', (_req: Request, res: Response) => {
   res.json([
-    { assistant_id: 'ingestion_graph', graph_id: 'ingestion_graph', name: 'Ingestion Graph' },
-    { assistant_id: 'retrieval_graph', graph_id: 'retrieval_graph', name: 'Retrieval Graph' },
+    {
+      assistant_id: 'ingestion_graph',
+      graph_id: 'ingestion_graph',
+      name: 'Ingestion Graph',
+    },
+    {
+      assistant_id: 'retrieval_graph',
+      graph_id: 'retrieval_graph',
+      name: 'Retrieval Graph',
+    },
   ]);
 });
 
 // Get assistant
 app.get('/assistants/:assistantId', (req: Request, res: Response) => {
   const { assistantId } = req.params;
-  res.json({ assistant_id: assistantId, graph_id: assistantId, name: assistantId });
+  res.json({
+    assistant_id: assistantId,
+    graph_id: assistantId,
+    name: assistantId,
+  });
 });
 
 // Create thread
@@ -62,100 +77,138 @@ app.get('/threads/:threadId', (req: Request, res: Response) => {
 
 // Get thread state
 app.get('/threads/:threadId/state', (_req: Request, res: Response) => {
-  return res.json({ values: {}, next: [], tasks: [], metadata: {}, created_at: new Date().toISOString(), parent_config: null });
+  return res.json({
+    values: {},
+    next: [],
+    tasks: [],
+    metadata: {},
+    created_at: new Date().toISOString(),
+    parent_config: null,
+  });
 });
 
 // Run graph (wait mode)
-app.post('/threads/:threadId/runs/wait', async (req: Request, res: Response) => {
-  const { threadId } = req.params;
-  const { input, config, assistant_id } = req.body;
+app.post(
+  '/threads/:threadId/runs/wait',
+  async (req: Request, res: Response) => {
+    const { threadId } = req.params;
+    const { input, config, assistant_id } = req.body;
 
-  try {
-    const graphConfig = {
-      configurable: {
-        thread_id: threadId,
-        ...config?.configurable,
-      },
-    };
+    try {
+      const graphConfig = {
+        configurable: {
+          thread_id: threadId,
+          ...config?.configurable,
+        },
+      };
 
-    let result;
-    if (assistant_id === 'ingestion_graph') {
-      result = await ingestionGraph.invoke(input, graphConfig);
-    } else if (assistant_id === 'retrieval_graph') {
-      result = await retrievalGraph.invoke(input, graphConfig);
-    } else {
-      return res.status(400).json({ error: `Unknown assistant: ${assistant_id}` });
+      let result;
+      if (assistant_id === 'ingestion_graph') {
+        result = await ingestionGraph.invoke(input, graphConfig);
+      } else if (assistant_id === 'retrieval_graph') {
+        result = await retrievalGraph.invoke(input, graphConfig);
+      } else {
+        return res
+          .status(400)
+          .json({ error: `Unknown assistant: ${assistant_id}` });
+      }
+
+      return res.json(result);
+    } catch (error) {
+      console.error('Error running graph:', error);
+      return res
+        .status(500)
+        .json({
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
     }
-
-    return res.json(result);
-  } catch (error) {
-    console.error('Error running graph:', error);
-    return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-  }
-});
+  },
+);
 
 // Stream graph
-app.post('/threads/:threadId/runs/stream', async (req: Request, res: Response) => {
-  const { threadId } = req.params;
-  const { input, config, assistant_id, stream_mode } = req.body;
+app.post(
+  '/threads/:threadId/runs/stream',
+  async (req: Request, res: Response) => {
+    const { threadId } = req.params;
+    const { input, config, assistant_id, stream_mode } = req.body;
 
-  // Set SSE headers
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.flushHeaders();
+    // Set SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
 
-  try {
-    const graphConfig = {
-      configurable: {
-        thread_id: threadId,
-        ...config?.configurable,
-      },
-    };
+    try {
+      const graphConfig = {
+        configurable: {
+          thread_id: threadId,
+          ...config?.configurable,
+        },
+      };
 
-    let graph;
-    if (assistant_id === 'ingestion_graph') {
-      graph = ingestionGraph;
-    } else if (assistant_id === 'retrieval_graph') {
-      graph = retrievalGraph;
-    } else {
-      res.write(`data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`);
-      res.end();
-      return;
-    }
-
-    // Stream the graph execution - frontend expects: data: {"event": "...", "data": ...}
-    const streamModes = Array.isArray(stream_mode) ? stream_mode : [stream_mode || 'updates'];
-    
-    // Accumulate message content for partial streaming
-    let accumulatedContent = '';
-    
-    // Use streamEvents to get AI message content
-    for await (const event of await graph.streamEvents(input, { ...graphConfig, version: 'v2' })) {
-      if (event.event === 'on_chat_model_stream' && event.data?.chunk?.content) {
-        // Accumulate and send partial message content
-        accumulatedContent += event.data.chunk.content;
-        res.write(`data: ${JSON.stringify({ 
-          event: 'messages/partial', 
-          data: [{ type: 'ai', content: accumulatedContent }] 
-        })}\n\n`);
-      } else if (event.event === 'on_chain_end' && event.name === 'retrieveDocuments') {
-        // Send document retrieval updates
-        res.write(`data: ${JSON.stringify({ 
-          event: 'updates', 
-          data: { retrieveDocuments: event.data?.output } 
-        })}\n\n`);
+      let graph;
+      if (assistant_id === 'ingestion_graph') {
+        graph = ingestionGraph;
+      } else if (assistant_id === 'retrieval_graph') {
+        graph = retrievalGraph;
+      } else {
+        res.write(
+          `data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`,
+        );
+        res.end();
+        return;
       }
-    }
 
-    res.write(`data: ${JSON.stringify({ event: 'end', data: {} })}\n\n`);
-    res.end();
-  } catch (error) {
-    console.error('Error streaming graph:', error);
-    res.write(`data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`);
-    res.end();
-  }
-});
+      // Stream the graph execution - frontend expects: data: {"event": "...", "data": ...}
+      const streamModes = Array.isArray(stream_mode)
+        ? stream_mode
+        : [stream_mode || 'updates'];
+
+      // Accumulate message content for partial streaming
+      let accumulatedContent = '';
+
+      // Use streamEvents to get AI message content
+      for await (const event of await graph.streamEvents(input, {
+        ...graphConfig,
+        version: 'v2',
+      })) {
+        if (
+          event.event === 'on_chat_model_stream' &&
+          event.data?.chunk?.content
+        ) {
+          // Accumulate and send partial message content
+          accumulatedContent += event.data.chunk.content;
+          res.write(
+            `data: ${JSON.stringify({
+              event: 'messages/partial',
+              data: [{ type: 'ai', content: accumulatedContent }],
+            })}\n\n`,
+          );
+        } else if (
+          event.event === 'on_chain_end' &&
+          event.name === 'retrieveDocuments'
+        ) {
+          // Send document retrieval updates
+          res.write(
+            `data: ${JSON.stringify({
+              event: 'updates',
+              data: { retrieveDocuments: event.data?.output },
+            })}\n\n`,
+          );
+        }
+      }
+
+      res.write(`data: ${JSON.stringify({ event: 'end', data: {} })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error('Error streaming graph:', error);
+      res.write(
+        `data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`,
+      );
+      res.end();
+    }
+  },
+);
 
 // Stateless stream (no thread)
 app.post('/runs/stream', async (req: Request, res: Response) => {
@@ -182,29 +235,46 @@ app.post('/runs/stream', async (req: Request, res: Response) => {
     } else if (assistant_id === 'retrieval_graph') {
       graph = retrievalGraph;
     } else {
-      res.write(`data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({ event: 'error', data: { error: `Unknown assistant: ${assistant_id}` } })}\n\n`,
+      );
       res.end();
       return;
     }
 
-    const streamModes = Array.isArray(stream_mode) ? stream_mode : [stream_mode || 'updates'];
-    
+    const streamModes = Array.isArray(stream_mode)
+      ? stream_mode
+      : [stream_mode || 'updates'];
+
     // Accumulate message content for partial streaming
     let accumulatedContent = '';
-    
+
     // Use streamEvents to get AI message content
-    for await (const event of await graph.streamEvents(input, { ...graphConfig, version: 'v2' })) {
-      if (event.event === 'on_chat_model_stream' && event.data?.chunk?.content) {
+    for await (const event of await graph.streamEvents(input, {
+      ...graphConfig,
+      version: 'v2',
+    })) {
+      if (
+        event.event === 'on_chat_model_stream' &&
+        event.data?.chunk?.content
+      ) {
         accumulatedContent += event.data.chunk.content;
-        res.write(`data: ${JSON.stringify({ 
-          event: 'messages/partial', 
-          data: [{ type: 'ai', content: accumulatedContent }] 
-        })}\n\n`);
-      } else if (event.event === 'on_chain_end' && event.name === 'retrieveDocuments') {
-        res.write(`data: ${JSON.stringify({ 
-          event: 'updates', 
-          data: { retrieveDocuments: event.data?.output } 
-        })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            event: 'messages/partial',
+            data: [{ type: 'ai', content: accumulatedContent }],
+          })}\n\n`,
+        );
+      } else if (
+        event.event === 'on_chain_end' &&
+        event.name === 'retrieveDocuments'
+      ) {
+        res.write(
+          `data: ${JSON.stringify({
+            event: 'updates',
+            data: { retrieveDocuments: event.data?.output },
+          })}\n\n`,
+        );
       }
     }
 
@@ -212,7 +282,9 @@ app.post('/runs/stream', async (req: Request, res: Response) => {
     res.end();
   } catch (error) {
     console.error('Error streaming graph:', error);
-    res.write(`data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({ event: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } })}\n\n`,
+    );
     res.end();
   }
 });
