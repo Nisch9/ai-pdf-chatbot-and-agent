@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { CheckCircle2, AlertCircle, Loader2, X, Upload, FileText, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, X, FileText, AlertTriangle } from 'lucide-react';
 
 export type NotificationType = 'success' | 'error' | 'loading' | 'warning' | 'info';
 

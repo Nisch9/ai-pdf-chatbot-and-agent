@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Zap, Sparkles, Brain } from 'lucide-react';
+import { Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

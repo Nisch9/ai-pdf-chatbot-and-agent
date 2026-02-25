@@ -1,6 +1,6 @@
 'use client';
 
-import { Brain, Settings, HelpCircle, Zap, Book, Download, Search, Moon, Sun, BarChart3, Info } from 'lucide-react';
+import { Brain, Settings, Zap, Book, Download, Search, Moon, Sun, BarChart3, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
