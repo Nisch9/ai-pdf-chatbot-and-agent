@@ -8,8 +8,8 @@ This template is also an accompanying example to the book [Learning LangChain (O
 
 ## Screenshots
 
-| Landing Page | Chat Interface |
-|:---:|:---:|
+| Landing Page | Chat Interface | Chat |
+|:---:|:---:|:---:|
 | ![Landing Page](docs/landing-page.png) | ![Chat Interface](docs/chat-interface.png) | ![Chat](docs/chat.png) |
 
 ## Table of Contents
