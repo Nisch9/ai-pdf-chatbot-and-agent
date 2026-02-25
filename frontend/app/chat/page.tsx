@@ -91,8 +91,17 @@ export default function Home() {
   // Create thread for active chat if needed
   useEffect(() => {
     if (!activeChat || activeChat.threadId) return;
+    if (!client) {
+      toast({
+        title: 'Configuration Error',
+        description: 'NEXT_PUBLIC_LANGGRAPH_API_URL is not configured. Please set it in your environment variables.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const initThread = async () => {
+      if (!client) return;
       try {
         const thread = await client.createThread();
         updateActiveChat({ threadId: thread.thread_id });
