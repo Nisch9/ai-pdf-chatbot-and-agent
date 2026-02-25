@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/langgraph-server';
 import { retrievalAssistantStreamConfig } from '@/constants/graphConfigs';
 
 export const runtime = 'edge';
@@ -37,61 +36,44 @@ export async function POST(req: Request) {
       );
     }
 
+    const apiUrl = process.env.NEXT_PUBLIC_LANGGRAPH_API_URL;
+    if (!apiUrl) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'NEXT_PUBLIC_LANGGRAPH_API_URL is not set',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+
     try {
       const assistantId = process.env.LANGGRAPH_RETRIEVAL_ASSISTANT_ID;
-      const serverClient = createServerClient();
 
-      if (!serverClient) {
-        return new NextResponse(
-          JSON.stringify({
-            error: 'LangGraph client not configured. Check NEXT_PUBLIC_LANGGRAPH_API_URL and LANGCHAIN_API_KEY.',
-          }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } },
-        );
-      }
-
-      const stream = await serverClient.client.runs.stream(
-        threadId,
-        assistantId,
-        {
+      // Direct fetch to backend instead of using LangGraph SDK
+      const backendResponse = await fetch(`${apiUrl}/threads/${threadId}/runs/stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          assistant_id: assistantId,
           input: { query: message, threadId },
-          streamMode: ['messages', 'updates'],
+          stream_mode: ['messages', 'updates'],
           config: {
             configurable: {
               ...retrievalAssistantStreamConfig,
               ...(queryModel && { queryModel }),
             },
           },
-        },
-      );
-
-      // Set up response as a stream
-      const encoder = new TextEncoder();
-      const customReadable = new ReadableStream({
-        async start(controller) {
-          try {
-            // Forward each chunk from the graph to the client
-            for await (const chunk of stream) {
-              // Only send relevant chunks
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`),
-              );
-            }
-          } catch (error) {
-            console.error('Streaming error:', error);
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({ error: 'Streaming error occurred' })}\n\n`,
-              ),
-            );
-          } finally {
-            controller.close();
-          }
-        },
+        }),
       });
 
-      // Return the stream with appropriate headers
-      return new Response(customReadable, {
+      if (!backendResponse.ok) {
+        throw new Error(`Backend error: ${backendResponse.status}`);
+      }
+
+      // Forward the SSE stream directly
+      return new Response(backendResponse.body, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
