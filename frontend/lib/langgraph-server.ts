@@ -6,26 +6,31 @@ let clientInstance: LangGraphBase | null = null;
 
 /**
  * Creates or returns a singleton instance of the LangGraph client for server-side use
- * @returns LangGraph Client instance
+ * @returns LangGraph Client instance or null if env vars are missing
  */
-export const createServerClient = () => {
+export const createServerClient = (): LangGraphBase | null => {
   if (clientInstance) {
     return clientInstance;
   }
 
-  if (!process.env.NEXT_PUBLIC_LANGGRAPH_API_URL) {
-    throw new Error('NEXT_PUBLIC_LANGGRAPH_API_URL is not set');
+  const apiUrl = process.env.NEXT_PUBLIC_LANGGRAPH_API_URL;
+  const apiKey = process.env.LANGCHAIN_API_KEY;
+
+  if (!apiUrl) {
+    console.error('NEXT_PUBLIC_LANGGRAPH_API_URL is not set');
+    return null;
   }
 
-  if (!process.env.LANGCHAIN_API_KEY) {
-    throw new Error('LANGCHAIN_API_KEY is not set');
+  if (!apiKey) {
+    console.error('LANGCHAIN_API_KEY is not set');
+    return null;
   }
 
   const client = new Client({
-    apiUrl: process.env.NEXT_PUBLIC_LANGGRAPH_API_URL,
+    apiUrl,
     defaultHeaders: {
       'Content-Type': 'application/json',
-      'X-Api-Key': process.env.LANGCHAIN_API_KEY,
+      'X-Api-Key': apiKey,
     },
   });
 

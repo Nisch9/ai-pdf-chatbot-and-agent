@@ -82,6 +82,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!langGraphServerClient) {
+      return NextResponse.json(
+        { error: 'LangGraph client not configured. Check NEXT_PUBLIC_LANGGRAPH_API_URL and LANGCHAIN_API_KEY.' },
+        { status: 500 },
+      );
+    }
+
     // Run the ingestion graph
     const thread = await langGraphServerClient.createThread();
     await langGraphServerClient.client.runs.wait(

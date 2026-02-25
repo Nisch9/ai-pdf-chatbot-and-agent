@@ -41,6 +41,15 @@ export async function POST(req: Request) {
       const assistantId = process.env.LANGGRAPH_RETRIEVAL_ASSISTANT_ID;
       const serverClient = createServerClient();
 
+      if (!serverClient) {
+        return new NextResponse(
+          JSON.stringify({
+            error: 'LangGraph client not configured. Check NEXT_PUBLIC_LANGGRAPH_API_URL and LANGCHAIN_API_KEY.',
+          }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+
       const stream = await serverClient.client.runs.stream(
         threadId,
         assistantId,
