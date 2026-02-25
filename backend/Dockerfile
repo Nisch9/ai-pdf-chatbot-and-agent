@@ -12,6 +12,9 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
+# Make entrypoint executable
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8080
@@ -19,5 +22,5 @@ ENV PORT=8080
 # Expose port
 EXPOSE 8080
 
-# Start LangGraph server
-CMD ["npx", "@langchain/langgraph-cli", "dev", "--host", "0.0.0.0", "--port", "8080"]
+# Start LangGraph server via entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
