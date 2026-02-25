@@ -6,6 +6,10 @@ This template is also an accompanying example to the book [Learning LangChain (O
 
 **Developed by Nischith Adavala**
 
+## 🚀 Live Demo
+
+**[Try the app live →](https://ai-pdf-chatbot-and-agent-production-013b.up.railway.app/)**
+
 ## Screenshots
 
 ### | Landing Page |
