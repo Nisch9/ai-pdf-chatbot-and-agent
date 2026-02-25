@@ -1,6 +1,23 @@
-FROM langchain/langgraphjs-api:20
-ADD . /deps/backend
-RUN cd /deps/backend && npm i
-ENV LANGSERVE_GRAPHS='{"ingestion_graph":"./src/ingestion_graph/graph.ts:graph","retrieval_graph":"./src/retrieval_graph/graph.ts:graph"}'
-WORKDIR /deps/backend
-RUN (test ! -f /api/langgraph_api/js/build.mts && echo "Prebuild script not found, skipping") || tsx /api/langgraph_api/js/build.mts
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Expose port
+EXPOSE 8080
+
+# Start LangGraph server
+CMD ["npx", "@langchain/langgraph-cli", "dev", "--host", "0.0.0.0", "--port", "8080"]
