@@ -1,0 +1,719 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --radius: 0.5rem;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@keyframes loading {
+  0% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.0), 0 0 40px rgba(59, 130, 246, 0.0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes twinkle-slow {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes shooting-star {
+  0% {
+    transform: translateX(0) translateY(0) rotate(-45deg);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-500px) translateY(500px) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes float-cloud {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px) scale(1.02);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-5px) scale(0.98);
+  }
+  75% {
+    transform: translateY(-20px) translateX(-10px) scale(1.01);
+  }
+}
+
+@keyframes float-cloud-slow {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-30px) translateX(15px);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 96%;
+
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 96%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 96%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 10%;
+    --ring: 0 0% 70%;
+
+    --chart-1: 220 60% 45%;
+    --chart-2: 160 50% 40%;
+    --chart-3: 30 70% 50%;
+    --chart-4: 280 55% 55%;
+    --chart-5: 340 65% 50%;
+
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 220 70% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 220 70% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply text-foreground;
+    background: #000000;
+    transition: background-color 0.3s ease;
+  }
+
+  .light body {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+  }
+}
+
+@layer components {
+  /* Theme background - handles both dark and light */
+  .theme-background {
+    background: #030014;
+    transition: background-color 0.3s ease;
+  }
+
+  .light .theme-background {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+  }
+
+  /* Starfield layers */
+  .stars-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .light .stars-layer {
+    display: none !important;
+  }
+
+  .stars-small {
+    background-image: 
+      radial-gradient(1px 1px at 10% 10%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 40% 20%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1px 1px at 60% 50%, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 80% 40%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 5% 60%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 70% 10%, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 50% 90%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 15% 45%, rgba(255, 255, 255, 0.4), transparent),
+      radial-gradient(1px 1px at 85% 25%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1px 1px at 35% 85%, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 65% 65%, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(1px 1px at 95% 55%, rgba(255, 255, 255, 0.4), transparent);
+    background-size: 250px 250px;
+    animation: twinkle-slow 4s ease-in-out infinite;
+  }
+
+  .stars-medium {
+    background-image: 
+      radial-gradient(1.5px 1.5px at 15% 25%, rgba(200, 220, 255, 0.9), transparent),
+      radial-gradient(1.5px 1.5px at 45% 15%, rgba(200, 220, 255, 0.7), transparent),
+      radial-gradient(1.5px 1.5px at 75% 55%, rgba(200, 220, 255, 0.8), transparent),
+      radial-gradient(1.5px 1.5px at 25% 75%, rgba(200, 220, 255, 0.6), transparent),
+      radial-gradient(1.5px 1.5px at 85% 85%, rgba(200, 220, 255, 0.9), transparent),
+      radial-gradient(1.5px 1.5px at 55% 35%, rgba(200, 220, 255, 0.5), transparent),
+      radial-gradient(1.5px 1.5px at 5% 95%, rgba(200, 220, 255, 0.7), transparent),
+      radial-gradient(1.5px 1.5px at 35% 5%, rgba(200, 220, 255, 0.6), transparent);
+    background-size: 350px 350px;
+    animation: twinkle-slow 6s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .stars-large {
+    background-image: 
+      radial-gradient(2px 2px at 30% 40%, rgba(180, 200, 255, 1), transparent),
+      radial-gradient(2.5px 2.5px at 70% 20%, rgba(180, 200, 255, 0.9), transparent),
+      radial-gradient(2px 2px at 20% 80%, rgba(180, 200, 255, 0.8), transparent),
+      radial-gradient(2.5px 2.5px at 90% 60%, rgba(180, 200, 255, 1), transparent),
+      radial-gradient(2px 2px at 50% 50%, rgba(200, 180, 255, 0.9), transparent);
+    background-size: 450px 450px;
+    animation: twinkle 5s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  /* Shooting star */
+  .shooting-star {
+    position: absolute;
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+    animation: shooting-star 3s ease-in-out infinite;
+    animation-delay: 5s;
+    top: 20%;
+    right: 10%;
+    opacity: 0;
+  }
+
+  .shooting-star:nth-child(2) {
+    animation-delay: 12s;
+    top: 40%;
+    right: 30%;
+  }
+
+  .light .shooting-star {
+    display: none !important;
+  }
+
+  /* Light theme floating clouds/bubbles */
+  .light-clouds-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: none;
+  }
+
+  .light .light-clouds-layer {
+    display: block !important;
+  }
+
+  .light-cloud {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+  }
+
+  .light-cloud-1 {
+    width: 600px;
+    height: 600px;
+    background: linear-gradient(135deg, rgba(99, 179, 237, 0.5) 0%, rgba(167, 139, 250, 0.4) 100%);
+    top: -15%;
+    left: -10%;
+    animation: float-cloud 15s ease-in-out infinite;
+  }
+
+  .light-cloud-2 {
+    width: 700px;
+    height: 700px;
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.35) 0%, rgba(244, 114, 182, 0.3) 100%);
+    top: 10%;
+    right: -15%;
+    animation: float-cloud-slow 20s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .light-cloud-3 {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.4) 0%, rgba(99, 179, 237, 0.35) 100%);
+    bottom: -5%;
+    left: 10%;
+    animation: float-cloud 18s ease-in-out infinite;
+    animation-delay: 5s;
+  }
+
+  .light-cloud-4 {
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.45) 0%, rgba(244, 114, 182, 0.35) 100%);
+    bottom: 20%;
+    right: 5%;
+    animation: float-cloud-slow 22s ease-in-out infinite;
+    animation-delay: 8s;
+  }
+
+  /* Subtle gradient background animation for light mode */
+  .light .theme-background {
+    background: linear-gradient(-45deg, #ffffff, #e0f2fe, #ede9fe, #fce7f3, #fff7ed) !important;
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+  }
+
+  /* Theme orbs - hidden in light mode */
+  .theme-orb {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .light .theme-orb {
+    opacity: 0 !important;
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .animate-slideInFromBottom {
+    animation: slideInFromBottom 0.5s ease-out;
+  }
+
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+
+  .glass-effect {
+    background: rgba(5, 5, 5, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-effect-light {
+    background: rgba(10, 10, 10, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Light mode styles */
+  .light {
+    --background: 220 20% 97%;
+    --foreground: 220 20% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+    --primary: 220 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 20% 20%;
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 220 80% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 15% 88%;
+    --input: 220 15% 94%;
+    --ring: 220 80% 50%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --sidebar-background: 220 15% 96%;
+    --sidebar-foreground: 220 20% 20%;
+    --sidebar-primary: 220 80% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 92%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 220 80% 50%;
+
+    color-scheme: light;
+  }
+
+  .light .glass-effect {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(59, 130, 246, 0.15) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .light .glass-effect-light {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.12) !important;
+  }
+
+  .light body {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e8f0fe 100%) !important;
+  }
+
+  .light h1, .light h2, .light h3 {
+    color: hsl(220, 20%, 15%);
+  }
+
+  .light p {
+    color: hsl(0, 0%, 0%);
+  }
+
+  /* Override dark colors in light mode */
+  .light .bg-black {
+    background-color: hsl(220, 20%, 97%) !important;
+  }
+
+  .light .bg-neutral-800 {
+    background-color: hsl(220, 15%, 92%) !important;
+  }
+
+  .light .bg-neutral-900 {
+    background-color: hsl(220, 15%, 95%) !important;
+  }
+
+  .light .text-neutral-100 {
+    color: hsl(220, 20%, 15%) !important;
+  }
+
+  .light .text-neutral-300 {
+    color: hsl(220, 15%, 35%) !important;
+  }
+
+  .light .text-neutral-400 {
+    color: hsl(220, 10%, 45%) !important;
+  }
+
+  .light .text-neutral-500 {
+    color: hsl(220, 10%, 50%) !important;
+  }
+
+  .light .border-neutral-800\/60 {
+    border-color: hsl(220, 15%, 85%) !important;
+  }
+
+  .light .bg-slate-800\/50 {
+    background-color: rgba(59, 130, 246, 0.08) !important;
+  }
+
+  .light .text-slate-100 {
+    color: hsl(220, 20%, 15%) !important;
+  }
+
+  .light .text-slate-300 {
+    color: hsl(220, 15%, 35%) !important;
+  }
+
+  .light .text-slate-400 {
+    color: hsl(220, 10%, 45%) !important;
+  }
+
+  .light .text-slate-500 {
+    color: hsl(220, 10%, 50%) !important;
+  }
+
+  .light .border-slate-700 {
+    border-color: hsl(220, 15%, 85%) !important;
+  }
+
+  .light .hover\:bg-slate-700\/50:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  .light .hover\:bg-neutral-800\/50:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  /* Fix user messages gradient in light mode */
+  .light .from-blue-600 {
+    --tw-gradient-from: #2563eb !important;
+  }
+
+  .light .to-indigo-700 {
+    --tw-gradient-to: #4338ca !important;
+  }
+
+  /* Fix blue accent colors */
+  .light .text-blue-400 {
+    color: #2563eb !important;
+  }
+
+  .light .hover\:text-blue-400:hover {
+    color: #1d4ed8 !important;
+  }
+
+  /* Fix dropdown/popover backgrounds */
+  .light [data-radix-popper-content-wrapper] {
+    --tw-bg-opacity: 1;
+  }
+
+  .light [role="menu"] {
+    background: white !important;
+    border: 1px solid hsl(220, 15%, 88%) !important;
+  }
+
+  /* Fix main content area - make transparent to show clouds */
+  .light main {
+    background: transparent !important;
+  }
+
+  /* Fix assistant chat bubbles to have dark text on light background */
+  .light .glass-effect {
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: #1e293b !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .light .glass-effect p {
+    color: #1e293b !important;
+  }
+
+  .light .glass-effect .whitespace-pre-wrap {
+    color: #1e293b !important;
+  }
+
+  /* Fix the overall page background - make transparent */
+  .light .bg-background {
+    background: transparent !important;
+  }
+
+  /* Fix file preview card */
+  .light .glass-effect-light {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  /* Fix the input area */
+  .light .bg-transparent {
+    background: transparent !important;
+  }
+
+  .light input::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* Fix any remaining dark backgrounds */
+  .light [class*="bg-black"] {
+    background: #ffffff !important;
+  }
+
+  /* Fix the fixed background div */
+  html.light body {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+  }
+
+  html.light .theme-background {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+  }
+
+  html.light .theme-orb {
+    display: none !important;
+  }
+}
