@@ -148,6 +148,8 @@ export default function Home() {
       { role: 'assistant' as const, content: '', sources: undefined, timestamp },
     ];
     
+    // Sync messagesRef immediately before streaming starts (don't wait for useEffect)
+    messagesRef.current = newMessages;
     updateActiveChat({ messages: newMessages });
     setInput('');
     setIsLoading(true);
@@ -228,6 +230,8 @@ export default function Home() {
                     return msg;
                   });
                   
+                  // Sync ref immediately so next streaming event has latest state
+                  messagesRef.current = updatedMessages;
                   updateActiveChat({ messages: updatedMessages });
                 }
               }
