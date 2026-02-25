@@ -116,11 +116,9 @@ app.post(
       return res.json(result);
     } catch (error) {
       console.error('Error running graph:', error);
-      return res
-        .status(500)
-        .json({
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
   },
 );
