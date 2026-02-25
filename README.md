@@ -8,9 +8,17 @@ This template is also an accompanying example to the book [Learning LangChain (O
 
 ## Screenshots
 
-| Landing Page | Chat Interface | Chat |
-|:---:|:---:|:---:|
-| ![Landing Page](docs/landing-page.png) | ![Chat Interface](docs/chat-interface.png) | ![Chat](docs/chat.png) |
+### | Landing Page |
+
+| ![Landing Page](docs/landing-page.png) | 
+
+### | Chat Interface |
+
+![Chat Interface](docs/chat-interface.png) |
+
+### | Chat |
+
+![Chat](docs/chat.png) |
 
 ## Table of Contents
 
@@ -412,15 +420,11 @@ Make sure to set relevant environment variables in your deployment environment. 
    - Verify your `GROQ_API_KEY` is valid
    - Check if the model is available (some models may be deprecated)
 
-4. **OpenAI Errors**
-   - Double-check your `OPENAI_API_KEY`
-   - Ensure you have enough credits/quota for embeddings
-
-5. **LangGraph Not Running**
+4. **LangGraph Not Running**
    - Confirm Node version is >= 18
    - Ensure all dependencies are installed
 
-6. **Network Errors**
+5. **Network Errors**
    - Frontend must point to correct `NEXT_PUBLIC_LANGGRAPH_API_URL`
    - Default is `http://localhost:2024`
 
